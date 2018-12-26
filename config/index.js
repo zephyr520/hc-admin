@@ -10,7 +10,16 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      '/hc-admin': {
+        target: 'http://192.168.1.45:8081',
+        changeOrigin: true,
+        logLevel: 'debug',
+        pathRewrite: {
+          '^/hc-admin': ''
+        }
+      }
+    },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST

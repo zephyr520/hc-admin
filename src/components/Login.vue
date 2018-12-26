@@ -1,38 +1,57 @@
 <template>
   <div class="sys-login">
-    <el-form :rules="rule" ref="loginForm" class="demo-ruleForm login-container">
+    <el-form :rules="rules" ref="loginForm" :model="loginForm" class="demo-ruleForm login-container">
       <h3 class="title">系统登录</h3>
-      <el-form-item prop="userName">
-        <el-input type="text" v-model="loginForm.userName" auto-complete="off" placeholder="账号"></el-input>
+      <el-form-item prop="username">
+        <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="账号"></el-input>
       </el-form-item>
-      <el-form-item prop="passWord">
-        <el-input type="password" v-model="loginForm.passWord" auto-complete="off" placeholder="密码"></el-input>
+      <el-form-item prop="password">
+        <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码"></el-input>
       </el-form-item>
       <el-form-item style="width:100%;">
-        <el-button type="primary" style="width:100%;" @click="login">登录</el-button>
+        <el-button type="primary" style="width:100%;" :loading="loading" @click="login">登录</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
+import { Error, Success } from '../common/js/uilt'
 export default {
   name: 'Login',
   data () {
     return {
+      loading: false, // 是否请求中
       loginForm: {
-        userName: 'admin',
-        passWord: '123456'
+        username: '',
+        password: '',
+        clientType: 'ADMIN'
       },
-      rule: {
-        userName: [{ required: true, message: '请输入账号', trigger: 'blur' }],
-        passWord: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+      rules: {
+        username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+        password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
       }
     }
   },
   methods: {
     login () {
-      this.$router.push({ path: '/wellcome' })
+      this.$refs.loginForm.validate((valid) => {
+        if (valid) {
+          this.loading = true
+          this.$api.login(this.loginForm).then(rs => {
+            if (rs.data.retCode === this.$api.STATUS_OK) {
+              sessionStorage.setItem('token', JSON.stringify(rs.data.data.accessToken))
+              Success('登录成功')
+              this.$router.push({ path: '/wellcome' })
+            } else {
+              Error(rs.data.retMsg)
+            }
+            this.loading = false
+          }).catch(e => {
+            this.loading = false
+          })
+        }
+      })
     }
   }
 }

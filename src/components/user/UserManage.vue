@@ -4,26 +4,37 @@
       <el-col :span="24" class="breadcrumb-container">
         <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb-inner">
           <el-breadcrumb-item :to="{ path: '/wellcome' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>内容管理</el-breadcrumb-item>
-          <el-breadcrumb-item>消息中心</el-breadcrumb-item>
+          <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+          <el-breadcrumb-item>用户列表</el-breadcrumb-item>
         </el-breadcrumb>
       </el-col>
     </div>
     <div class="search-box">
-      <el-form :inline="true" :ref="form" class="demo-form-inline" size="mini">
+      <el-form :inline="true" ref="formData" :model="formData" class="demo-form-inline" size="mini">
         <el-col :span="24">
-          <el-form-item label="审批人">
-            <el-input v-model="form.user" placeholder="审批人"></el-input>
+          <el-form-item label="用户状态:">
+            <el-button :type="formData.status === 'all' ? 'primary' : 'default'" @click="changeStatus('all')">全部</el-button>
+            <el-button :type="formData.status === 'enable' ? 'primary' : 'default'" @click="changeStatus('enable')">正常</el-button>
+            <el-button :type="formData.status === 'disable' ? 'primary' : 'default'" @click="changeStatus('disable')">禁用</el-button>
           </el-form-item>
-          <el-form-item label="活动区域">
-            <el-select v-model="form.region" placeholder="活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item label="用户名:">
+            <el-input v-model="formData.userName" placeholder="用户名"></el-input>
+          </el-form-item>
+          <el-form-item label="姓名:">
+            <el-input v-model="formData.realName" placeholder="姓名"></el-input>
+          </el-form-item>
+          <el-form-item label="手机号:">
+            <el-input v-model="formData.phone" placeholder="手机号"></el-input>
+          </el-form-item>
+          <el-form-item label="创建时间:">
+            <el-date-picker :editable="false" v-model="formData.startCreateTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="开始时间"></el-date-picker>
+            <el-date-picker :editable="false" v-model="formData.endCreateTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="结束时间"></el-date-picker>
           </el-form-item>
         </el-col>
         <el-form-item>
-          <el-button type="primary" icon="el-icon-search" size="mini">查询</el-button>
+          <el-button type="primary" icon="el-icon-search" size="mini" @click="getListData(1)">查询</el-button>
           <el-button size="mini">新增</el-button>
           <el-button type="info" size="mini">修改</el-button>
           <el-button type="danger" size="mini">删除</el-button>
@@ -34,12 +45,14 @@
       <el-table :data="tableData" highlight-current-row v-loading="ifLoading" size="mini" border style="width: 100%;">
         <el-table-column type="selection" width="30"></el-table-column>
         <el-table-column type="index" width="40"></el-table-column>
-        <el-table-column prop="date" label="日期" width="120" sortable></el-table-column>
-        <el-table-column prop="name" label="姓名" width="100" sortable></el-table-column>
-        <el-table-column prop="province" label="省份" width="100" sortable></el-table-column>
-        <el-table-column prop="city" label="城市" width="120" sortable></el-table-column>
-        <el-table-column prop="address" label="地址" min-width="180" sortable></el-table-column>
-        <el-table-column prop="zip" label="邮编" min-width="180" sortable></el-table-column>
+        <el-table-column prop="userId" label="用户编号" width="120"></el-table-column>
+        <el-table-column prop="userName" label="用户名" width="100"></el-table-column>
+        <el-table-column prop="realName" label="用户编号" width="100"></el-table-column>
+        <el-table-column prop="phone" label="用户手机号" width="100"></el-table-column>
+        <el-table-column prop="genderStr" label="性别" width="120"></el-table-column>
+        <el-table-column prop="statusStr" label="状态" width="120"></el-table-column>
+        <el-table-column prop="createTime" label="创建时间" min-width="180"></el-table-column>
+        <el-table-column prop="lastLoginTime" label="最后一次登录时间" min-width="180"></el-table-column>
         <el-table-column label="操作" width="150">
           <template slot-scope="scope">
             <el-button type="text" size="mini">编辑</el-button>
@@ -50,38 +63,59 @@
 
       <!--工具条-->
       <div class="table-list-pager" v-if="tableData.length > 0">
-        <el-pagination :total="total" @current-change="onPageChange" :page-size='form.pageSize' :current-page="form.pageNo" :layout="'total, prev, pager, next, jumper'" ></el-pagination>
+        <el-pagination :total="total" @current-change="onPageChange" :page-size='formData.pageSize' :current-page="formData.pageNo" :layout="'total, prev, pager, next, jumper'" ></el-pagination>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { Error } from '@/common/js/uilt'
 export default {
+  name: 'UserManage',
   data () {
-    const item = {
-      date: '2016-05-03',
-      name: '王小虎',
-      province: '上海',
-      city: '普陀区',
-      address: '上海市普陀区金沙江路 1518 弄',
-      zip: 200333
-    }
     return {
-      form: {
+      formData: {
         pageNo: 1,
-        pageSize: 5,
-        user: '',
-        region: ''
+        pageSize: 10,
+        userName: '',
+        realName: '',
+        phone: '',
+        status: 'all',
+        startCreateTime: '',
+        endCreateTime: ''
       },
       ifLoading: false,
-      tableData: Array(10).fill(item),
-      total: 20
+      tableData: [],
+      total: 0
     }
   },
+  created () {
+    this.getListData(1)
+  },
   methods: {
-    onPageChange () {
-      console.log('onPageChange')
+    getListData (page) {
+      if (this.ifLoading) return
+      this.ifLoading = true
+      this.formData.pageNo = page
+      this.$api.queryUserList(this.formData).then(rs => {
+        if (rs.data.retCode === this.$api.STATUS_OK) {
+          this.tableData = rs.data.data.list || []
+          this.total = rs.data.data.total || 1
+        } else {
+          Error(rs.data.retMsg)
+        }
+        this.ifLoading = false
+      }).catch(r => {
+        this.ifLoading = false
+      })
+    },
+    onPageChange (page) {
+      this.getListData(page)
+    },
+    changeStatus (label) {
+      this.formData.status = label
+      this.getListData(1)
     }
   }
 }
