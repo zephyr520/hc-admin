@@ -41,19 +41,22 @@ service.interceptors.response.use(
     switch (retcode) {
       case 200:
         return res
-      case 400:
+      case 101:
+        BackToLogin('没有登录或会话超时')
+        break
+      case 103:
         BackToLogin('登录超时，请重新登录')
         break
-      case 401:
+      case 104:
         BackToLogin('非法Token，请重新登录')
         break
-      case 411:
-        BackToLogin('系统检测到您已在其它登录, 账号被踢下线, 请重新登陆')
+      case 105:
+        BackToLogin('Token过期，请重新登录')
         break
-      case 412:
+      case 106:
         BackToLogin('账户未登录, 请登陆后操作')
         break
-      case 402:
+      case 102:
         router.go(-1)
         Error('该接口没有权限访问')
         break

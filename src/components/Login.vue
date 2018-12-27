@@ -1,6 +1,6 @@
 <template>
   <div class="sys-login">
-    <el-form :rules="rules" ref="loginForm" :model="loginForm" class="demo-ruleForm login-container">
+    <el-form :rules="rules" ref="loginForm" :model="loginForm" class="demo-ruleForm login-container" @keydown.enter.native="login">
       <h3 class="title">系统登录</h3>
       <el-form-item prop="username">
         <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="账号"></el-input>

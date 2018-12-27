@@ -35,24 +35,30 @@
         </el-col>
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" size="mini" @click="getListData(1)">查询</el-button>
-          <el-button size="mini">新增</el-button>
-          <el-button type="info" size="mini">修改</el-button>
-          <el-button type="danger" size="mini">删除</el-button>
+          <el-button size="mini" @click="doCreate">新增</el-button>
+          <el-button type="info" @click="doModify" size="mini">修改</el-button>
+          <el-button type="danger" @click="doDelete" size="mini">删除</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="table-list-box" v-loading="ifLoading">
-      <el-table :data="tableData" highlight-current-row v-loading="ifLoading" size="mini" border style="width: 100%;">
+      <el-table ref="multipleTable" :data="tableData" highlight-current-row v-loading="ifLoading" size="mini" border style="width: 100%;" @selection-change="onTableSelect">
         <el-table-column type="selection" width="30"></el-table-column>
         <el-table-column type="index" width="40"></el-table-column>
-        <el-table-column prop="userId" label="用户编号" width="120"></el-table-column>
-        <el-table-column prop="userName" label="用户名" width="100"></el-table-column>
-        <el-table-column prop="realName" label="用户编号" width="100"></el-table-column>
+        <el-table-column prop="userId" label="用户ID" width="80"></el-table-column>
+        <el-table-column prop="userName" label="用户名" width="80"></el-table-column>
+        <el-table-column prop="realName" label="姓名" width="100"></el-table-column>
         <el-table-column prop="phone" label="用户手机号" width="100"></el-table-column>
-        <el-table-column prop="genderStr" label="性别" width="120"></el-table-column>
-        <el-table-column prop="statusStr" label="状态" width="120"></el-table-column>
-        <el-table-column prop="createTime" label="创建时间" min-width="180"></el-table-column>
-        <el-table-column prop="lastLoginTime" label="最后一次登录时间" min-width="180"></el-table-column>
+        <el-table-column prop="roleName" label="角色名称" width="100"></el-table-column>
+        <el-table-column prop="genderStr" label="性别" width="50"></el-table-column>
+        <el-table-column label="状态" width="80">
+          <template slot-scope="scope">
+            <el-tag type="success" v-if="scope.row.status === 'enable'">{{scope.row.statusStr}}</el-tag>
+            <el-tag type="info" v-if="scope.row.status === 'disable'">{{scope.row.statusStr}}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="创建时间" min-width="150"></el-table-column>
+        <el-table-column prop="lastLoginTime" label="最后一次登录时间" min-width="150"></el-table-column>
         <el-table-column label="操作" width="150">
           <template slot-scope="scope">
             <el-button type="text" size="mini">编辑</el-button>
@@ -66,15 +72,25 @@
         <el-pagination :total="total" @current-change="onPageChange" :page-size='formData.pageSize' :current-page="formData.pageNo" :layout="'total, prev, pager, next, jumper'" ></el-pagination>
       </div>
     </div>
+    <el-dialog :title="dialogTitle" width="50%" :visible.sync="showModal" :before-close="closeDialog">
+      <add-dialog v-on:close="closeDialog" :editType="editType" :row="currentEditRow" v-if="showModal"></add-dialog>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { Error } from '@/common/js/uilt'
+import { Success, Error } from '@/common/js/uilt'
+import mixin from '@/components/common/mixin'
+import AddDialog from './AddDialog'
 export default {
   name: 'UserManage',
+  mixins: [mixin],
+  components: { AddDialog },
   data () {
     return {
+      editType: '',
+      showModal: false,
+      dialogTitle: '',
       formData: {
         pageNo: 1,
         pageSize: 10,
@@ -116,6 +132,43 @@ export default {
     changeStatus (label) {
       this.formData.status = label
       this.getListData(1)
+    },
+    doDelete () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.currentEditRow = this.currentRows[0]
+      this.$confirm('您确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$api.deleteUser(this.currentEditRow.userId).then(rs => {
+          if (rs.data.retCode === this.$api.STATUS_OK) {
+            this.getListData(this.formData.pageNo)
+            Success('删除成功')
+          } else {
+            Error(rs.data.retMsg)
+          }
+        })
+      }).catch(() => {
+      })
+    },
+    closeDialog () {
+      this.showModal = false
+      this.getListData(this.formData.pageNo)
+    },
+    doCreate () {
+      this.dialogTitle = '创建用户'
+      this.showModal = true
+      this.editType = 1
+    },
+    doModify () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.dialogTitle = '修改用户'
+      this.showModal = true
+      this.editType = 2
+      this.currentEditRow = this.currentRows[0]
     }
   }
 }

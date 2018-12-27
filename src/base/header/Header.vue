@@ -7,7 +7,6 @@
         <el-dropdown trigger="hover">
           <span class="el-dropdown-link userinfo-inner"><img src="../../assets/user.png" />{{sysUserName}}</span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>我的消息</el-dropdown-item>
             <el-dropdown-item>密码修改</el-dropdown-item>
             <el-dropdown-item divided @click.native="logout()">退出登录</el-dropdown-item>
           </el-dropdown-menu>
@@ -21,15 +20,40 @@ export default {
   data () {
     return {
       sysName: 'VUE后台框架',
-      sysUserName: '张三'
+      sysUserName: ''
     }
   },
   methods: {
     // 退出登录
     logout: function () {
-      console.log('logout')
-      this.$router.push({ path: '/login' })
+      this.$confirm('此操作将退出登录, 是否继续?', '系统温馨提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '成功退出!'
+        })
+        sessionStorage.removeItem('token')
+        this.$router.push({ path: '/login' })
+      }).catch(() => {
+      })
+    },
+    _initInfo () {
+      let that = this
+      this.$api.userInfo().then(rs => {
+        if (rs.data.data.realName === '') {
+          return ''
+        } else {
+          that.sysUserName = rs.data.data.realName
+          sessionStorage.setItem('ADMIN_NAME', rs.data.data.realName)
+        }
+      })
     }
+  },
+  created () {
+    this._initInfo()
   }
 }
 </script>

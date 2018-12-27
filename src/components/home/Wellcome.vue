@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p class="wellcome">欢迎使用进入系统</p>
+    <p class="wellcome">欢迎进入系统使用</p>
   </div>
 </template>
 <script>
