@@ -3,10 +3,14 @@
     <el-form :rules="rules" ref="loginForm" :model="loginForm" class="demo-ruleForm login-container" @keydown.enter.native="login">
       <h3 class="title">系统登录</h3>
       <el-form-item prop="username">
-        <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="账号"></el-input>
+        <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="请输入用户名或手机号">
+          <template slot="prepend">账号</template>
+        </el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码"></el-input>
+        <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="请输入密码">
+          <template slot="prepend">密码</template>
+        </el-input>
       </el-form-item>
       <el-form-item style="width:100%;">
         <el-button type="primary" style="width:100%;" :loading="loading" @click="login">登录</el-button>

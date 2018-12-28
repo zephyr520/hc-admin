@@ -43,7 +43,7 @@ export default {
             {
               'menuId': 52,
               'menuName': '公告管理',
-              'menuUrl': '/app/form',
+              'menuUrl': '/app/role',
               'menuIcon': 'ios-notifications',
               'type': 1,
               'parentId': 28,
@@ -53,7 +53,7 @@ export default {
             {
               'menuId': 133,
               'menuName': '消息中心',
-              'menuUrl': '/app/world',
+              'menuUrl': '/app/user',
               'menuIcon': 'md-mail',
               'type': 1,
               'parentId': 28,

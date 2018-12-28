@@ -2,9 +2,9 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '@/components/Login'
 import Home from '@/components/home/Home'
-import Form from '@/components/form/Form'
 import UserManage from '@/components/user/UserManage'
 import Wellcome from '@/components/home/Wellcome'
+import Role from '@/components/role/Role'
 
 Vue.use(Router)
 
@@ -22,8 +22,8 @@ export default new Router({
       },
       children: [
         { path: '/wellcome', component: Wellcome, name: '欢迎页' },
-        { path: '/app/form', component: Form, name: '公告管理' },
-        { path: '/app/world', component: UserManage, name: '消息中心' }
+        { path: '/app/role', component: Role, name: '公告管理' },
+        { path: '/app/user', component: UserManage, name: '消息中心' }
       ]
     }
   ]
