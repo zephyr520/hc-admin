@@ -4,6 +4,9 @@ const perfix = 'hc-admin'
 // 登录
 export const login = (params) => http.post(`/${perfix}/login`, params)
 
+// 退出
+export const logout = () => http.post(`/${perfix}/logout`)
+
 // 获取用户信息
 export const userInfo = (params) => http.get(`/${perfix}/user/info`)
 

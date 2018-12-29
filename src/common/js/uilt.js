@@ -108,3 +108,7 @@ export function isPositiveInteger (input) {
 export function isNegativeInteger (input) {
   return /^\\-(?:0|[1-9]\d*)$/.test(input)
 }
+// 是否有子菜单
+export const hasSubMenus = (item) => {
+  return item.subMenus && item.subMenus.length > 0
+}

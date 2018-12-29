@@ -45,6 +45,7 @@ export default {
           this.$api.login(this.loginForm).then(rs => {
             if (rs.data.retCode === this.$api.STATUS_OK) {
               sessionStorage.setItem('token', JSON.stringify(rs.data.data.accessToken))
+              sessionStorage.setItem('accessList', JSON.stringify(rs.data.data.permitIdentifiers))
               Success('登录成功')
               this.$router.push({ path: '/wellcome' })
             } else {

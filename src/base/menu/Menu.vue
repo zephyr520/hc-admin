@@ -33,37 +33,11 @@
 export default {
   data () {
     return {
-      menuList: [
-        {
-          'menuId': 28,
-          'menuName': '内容管理',
-          'menuUrl': '#',
-          'menuIcon': 'ios-notifications',
-          'subMenus': [
-            {
-              'menuId': 52,
-              'menuName': '公告管理',
-              'menuUrl': '/app/role',
-              'menuIcon': 'ios-notifications',
-              'type': 1,
-              'parentId': 28,
-              'route': '28,52',
-              'subMenus': []
-            },
-            {
-              'menuId': 133,
-              'menuName': '消息中心',
-              'menuUrl': '/app/user',
-              'menuIcon': 'md-mail',
-              'type': 1,
-              'parentId': 28,
-              'route': '28,133',
-              'subMenus': []
-            }
-          ]
-        }
-      ]
+      menuList: []
     }
+  },
+  created () {
+    this.getMenuList()
   },
   methods: {
     onSubmit () {
@@ -76,6 +50,13 @@ export default {
       console.log('handleclose')
     },
     handleselect: function (a, b) {
+    },
+    getMenuList () {
+      this.$api.listAuthMenu().then(rs => {
+        if (rs.data.retCode === this.$api.STATUS_OK) {
+          this.menuList = rs.data.data || []
+        }
+      })
     }
   }
 }

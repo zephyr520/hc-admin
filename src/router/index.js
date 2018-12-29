@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '@/components/Login'
 import Home from '@/components/home/Home'
-import UserManage from '@/components/user/UserManage'
+import User from '@/components/user/User'
 import Wellcome from '@/components/home/Wellcome'
 import Role from '@/components/role/Role'
 
@@ -22,8 +22,8 @@ export default new Router({
       },
       children: [
         { path: '/wellcome', component: Wellcome, name: '欢迎页' },
-        { path: '/app/role', component: Role, name: '公告管理' },
-        { path: '/app/user', component: UserManage, name: '消息中心' }
+        { path: '/app/role', component: Role, name: '角色列表' },
+        { path: '/app/user', component: User, name: '用户列表' }
       ]
     }
   ]

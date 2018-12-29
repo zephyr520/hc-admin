@@ -1,18 +1,18 @@
 <template>
   <el-col :span="24" class="header">
-      <el-col :span="10" class="logo logo-width">
-        {{sysName}}
-      </el-col>
-      <el-col :span="14" class="userinfo">
-        <el-dropdown trigger="hover">
-          <span class="el-dropdown-link userinfo-inner"><img src="../../assets/user.png" />{{sysUserName}}</span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>密码修改</el-dropdown-item>
-            <el-dropdown-item divided @click.native="logout()">退出登录</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </el-col>
+    <el-col :span="10" class="logo logo-width">
+      {{sysName}}
     </el-col>
+    <el-col :span="14" class="userinfo">
+      <el-dropdown trigger="hover">
+        <span class="el-dropdown-link userinfo-inner"><img src="../../assets/user.png" />{{sysUserName}}</span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item @click.native="modifyPwd()">密码修改</el-dropdown-item>
+          <el-dropdown-item divided @click.native="logout()">退出登录</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </el-col>
+  </el-col>
 </template>
 
 <script>
@@ -36,6 +36,7 @@ export default {
           message: '成功退出!'
         })
         sessionStorage.removeItem('token')
+        sessionStorage.removeItem('accessList')
         this.$router.push({ path: '/login' })
       }).catch(() => {
       })
@@ -50,6 +51,9 @@ export default {
           sessionStorage.setItem('ADMIN_NAME', rs.data.data.realName)
         }
       })
+    },
+    modifyPwd () {
+      console.log('password modify')
     }
   },
   created () {

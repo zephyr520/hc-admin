@@ -9,6 +9,7 @@ import 'nprogress/nprogress.css'
 import './common/stylus/index.styl' // 全局引入公共样式
 import './assets/theme/theme-green/index.css'
 import 'font-awesome/css/font-awesome.min.css'
+import './common/js/directives'
 import axios from './api/http'
 import { getToken, Error, Success } from './common/js/uilt'
 import './api'

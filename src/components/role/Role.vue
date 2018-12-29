@@ -41,8 +41,7 @@
         </el-table-column>
         <el-table-column label="操作" width="150">
           <template slot-scope="scope">
-            <el-button type="text" size="mini">编辑</el-button>
-            <el-button type="text" size="mini">删除</el-button>
+            <el-button type="primary" size="mini" v-access="'admin:role:auth'" @click="authMenu(scope.row)">授权</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -52,17 +51,23 @@
         <el-pagination :total="total" @current-change="onPageChange" :page-size='formData.pageSize' :current-page="formData.pageNo" :layout="'total, prev, pager, next, jumper'" ></el-pagination>
       </div>
     </div>
+    <el-dialog title="操作权限" width="30%" :visible.sync="showModal" :before-close="closeDialog">
+      <auth-dialog v-on:close="closeDialog" :row="currentEditRow" v-if="showModal"></auth-dialog>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { Error } from '@/common/js/uilt'
 import mixin from '@/components/common/mixin'
+import AuthDialog from './AuthDialog'
 export default {
   name: 'Role',
   mixins: [mixin],
+  components: { AuthDialog },
   data () {
     return {
+      showModal: false,
       formData: {
         pageNo: 1,
         pageSize: 10,
@@ -97,6 +102,14 @@ export default {
     },
     onPageChange (page) {
       this.getListData(page)
+    },
+    authMenu (row) {
+      this.showModal = true
+      this.currentEditRow = row
+    },
+    closeDialog () {
+      this.showModal = false
+      this.getListData(this.formData.pageNo)
     }
   }
 }
