@@ -21,3 +21,6 @@ export const createUser = (params) => http.post(`/${perfix}/admin/user/create`, 
 
 // 修改用户
 export const modifyUser = (params) => http.post(`/${perfix}/admin/user/modify`, params)
+
+// 获取回收员用户信息列表
+export const queryRecyclingUserList = () => http.get(`/${perfix}/admin/user/recycling/list`)
