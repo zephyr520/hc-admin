@@ -15,7 +15,7 @@
           <el-form-item label="配件回收状态:">
             <el-button :type="formData.accessoryStatus === -1 ? 'primary' : 'default'" @click="changeStatus(-1)">全部</el-button>
             <el-button :type="formData.accessoryStatus === 0 ? 'primary' : 'default'" @click="changeStatus(0)">未回收</el-button>
-            <el-button :type="formData.accessoryStatus === 1 ? 'primary' : 'default'" @click="changeStatus(1)">已回收</el-button>
+            <el-button :type="formData.accessoryStatus === 1 ? 'primary' : 'default'" @click="changeStatus(1)">已回收未入库</el-button>
             <el-button :type="formData.accessoryStatus === 3 ? 'primary' : 'default'" @click="changeStatus(3)">已入库</el-button>
           </el-form-item>
         </el-col>
@@ -62,6 +62,18 @@
         </el-col>
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" size="mini" v-access="'back:accessory:list:query'" @click="getListData(1)">查询</el-button>
+          <el-tooltip class="item" content="标记回收" placement="top-start">
+            <el-button type="success" icon="el-icon-edit" size="mini" v-access="'back:accessory:has:recycled'" @click="recycled"></el-button>
+          </el-tooltip>
+          <el-tooltip class="item" content="撤销回收" placement="top-start">
+            <el-button type="warning" icon="el-icon-circle-close-outline" size="mini" v-access="'back:accessory:cancel:recycled'" @click="cancelRecycled"></el-button>
+          </el-tooltip>
+          <el-tooltip class="item" content="标记入库" placement="top-start">
+            <el-button type="primary" icon="el-icon-edit" size="mini" v-access="'back:accessory:has:storage'" @click="storage"></el-button>
+          </el-tooltip>
+          <el-tooltip class="item" content="撤销入库" placement="top-start">
+            <el-button type="info" icon="el-icon-circle-close-outline" size="mini" v-access="'back:accessory:cancel:storage'" @click="cancelStorage"></el-button>
+          </el-tooltip>
         </el-form-item>
       </el-form>
     </div>
@@ -72,7 +84,7 @@
         <el-table-column prop="accessoryName" label="配件名称" align="center" min-width="140"></el-table-column>
         <el-table-column prop="accessoryPrice" label="配件价格" align="center"></el-table-column>
         <el-table-column prop="accessoryNum" label="配件数量" align="center"></el-table-column>
-        <el-table-column label="配件状态" align="center">
+        <el-table-column label="配件状态" align="center" min-width="90">
           <template slot-scope="scope">
             <el-tag type="primary" v-if="scope.row.accessoryStatus === 0">{{scope.row.accessoryStatusStr}}</el-tag>
             <el-tag type="warning" v-if="scope.row.accessoryStatus === 1">{{scope.row.accessoryStatusStr}}</el-tag>
@@ -101,17 +113,18 @@
         </el-table-column>
         <el-table-column label="重要配件" align="center">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.ifImportant" active-text="是" :active-value="true" inactive-text="否" :inactive-value="false" @change="modify"></el-switch>
+            <el-tag type="danger" v-if="scope.row.ifImportant === true">是</el-tag>
+            <el-tag type="primary" v-if="scope.row.ifImportant === false">否</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="回收失败" align="center">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.ifRecyclingFailed" active-text="是" :active-value="true" inactive-text="否" :inactive-value="false" ></el-switch>
+            <el-switch v-model="scope.row.ifRecyclingFailed" active-text="是" :active-value="true" inactive-text="否" :inactive-value="false" @change="accessoryRecyclingFailure($event, scope.row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="回收拍照" align="center">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.ifTakePhoto" active-text="是" :active-value="true" inactive-text="否" :inactive-value="false" ></el-switch>
+            <el-switch v-model="scope.row.ifTakePhoto" active-text="是" :active-value="true" inactive-text="否" :inactive-value="false" @change="accessoryTakePhoto($event, scope.row)"></el-switch>
           </template>
         </el-table-column>
       </el-table>
@@ -125,7 +138,7 @@
 </template>
 
 <script>
-import { Error } from '@/common/js/uilt'
+import { Success, Error } from '@/common/js/uilt'
 import mixin from '@/components/common/mixin'
 export default {
   name: 'Accessory',
@@ -195,8 +208,83 @@ export default {
       this.formData.ifTakePhoto = label
       this.getListData(1)
     },
-    modify (value) {
-      console.log(value)
+    // 标记配件或者撤销配件回收失败操作
+    accessoryRecyclingFailure (value, row) {
+      this.$api.accessoryRecyclingFailure({id: row.id, ifRecyclingFailed: value}).then(rs => {
+        if (rs.data.retCode === this.$api.STATUS_OK) {
+          Success('操作成功')
+        } else {
+          Error(rs.data.retMsg)
+        }
+        this.getListData(this.formData.pageNo)
+      })
+    },
+    // 配件回收是否需要拍照处理
+    accessoryTakePhoto (value, row) {
+      this.$api.accessoryTakePhoto({id: row.id, ifTakePhoto: value}).then(rs => {
+        if (rs.data.retCode === this.$api.STATUS_OK) {
+          Success('操作成功')
+        } else {
+          Error(rs.data.retMsg)
+        }
+        this.getListData(this.formData.pageNo)
+      })
+    },
+    // 标记配件为已回收
+    recycled () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.currentEditRow = this.currentRows[0]
+      this.$api.accessoryHasRecycled(this.currentEditRow.id).then(rs => {
+        if (rs.data.retCode === this.$api.STATUS_OK) {
+          this.getListData(this.formData.pageNo)
+          Success('配件回收成功')
+        } else {
+          Error(rs.data.retMsg)
+        }
+      })
+    },
+    // 撤销回收
+    cancelRecycled () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.currentEditRow = this.currentRows[0]
+      this.$api.accessoryCancelRecycled(this.currentEditRow.id).then(rs => {
+        if (rs.data.retCode === this.$api.STATUS_OK) {
+          this.getListData(this.formData.pageNo)
+          Success('配件撤销回收成功')
+        } else {
+          Error(rs.data.retMsg)
+        }
+      })
+    },
+    // 配件入库
+    storage () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.currentEditRow = this.currentRows[0]
+      this.$api.accessoryHasStorage(this.currentEditRow.id).then(rs => {
+        if (rs.data.retCode === this.$api.STATUS_OK) {
+          this.getListData(this.formData.pageNo)
+          Success('配件入库成功')
+        } else {
+          Error(rs.data.retMsg)
+        }
+      })
+    },
+    // 撤销入库
+    cancelStorage () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.currentEditRow = this.currentRows[0]
+      this.$api.accessoryCancelStorage(this.currentEditRow.id).then(rs => {
+        if (rs.data.retCode === this.$api.STATUS_OK) {
+          this.getListData(this.formData.pageNo)
+          Success('配件入库撤销成功')
+        } else {
+          Error(rs.data.retMsg)
+        }
+      })
     }
   }
 }

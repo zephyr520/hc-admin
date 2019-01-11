@@ -58,7 +58,7 @@ service.interceptors.response.use(
         break
       case 102:
         router.go(-1)
-        Error('该接口没有权限访问')
+        Error('您暂时没有操作权限,请联系管理员')
         break
       default:
         return res
