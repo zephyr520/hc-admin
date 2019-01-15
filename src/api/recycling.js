@@ -6,3 +6,6 @@ export const queryRecyclingList = (params) => http.post(`/${perfix}/back/recycli
 
 // 对回收单派单
 export const dispatchRecyclingList = (params) => http.post(`/${perfix}/back/recycling/list/dispatch`, params)
+
+// 查看派单记录
+export const queryRecyclingDispatchRecordList = (recyclingNo) => http.get(`/${perfix}/back/recycling/${recyclingNo}/dispatch/list`)

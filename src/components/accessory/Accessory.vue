@@ -74,7 +74,7 @@
           <el-tooltip class="item" content="撤销入库" placement="top-start">
             <el-button type="info" icon="el-icon-circle-close-outline" size="mini" v-access="'back:accessory:cancel:storage'" @click="cancelStorage"></el-button>
           </el-tooltip>
-          <el-button type="primary" size="mini" @click="uploadImage"><i class="el-icon-upload el-icon--right"></i>上传</el-button>
+          <el-button type="primary" size="mini" v-access="'back:accessory:image:upload'" @click="uploadImage"><i class="el-icon-upload el-icon--right"></i>上传</el-button>
         </el-form-item>
       </el-form>
     </div>

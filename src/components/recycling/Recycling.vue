@@ -70,6 +70,9 @@
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" size="mini" v-access="'back:recycling:list:query'" @click="getListData(1)">查询</el-button>
           <el-button type="danger" size="mini" v-access="'back:recycling:list:dispatch'" @click="dispatchRecyclingList">派单</el-button>
+          <el-tooltip class="item" content="查看派单记录" placement="top-start">
+            <el-button type="info" icon="el-icon-view" size="mini" @click="viewDispatchRecord"></el-button>
+          </el-tooltip>
         </el-form-item>
       </el-form>
     </div>
@@ -135,6 +138,9 @@
     <el-dialog title="派单" width="30%" :visible.sync="showDispatchModal" :before-close="closeDispatchDialog">
       <dispatch-dialog v-on:close="closeDispatchDialog" :rows="currentRows" v-if="showDispatchModal"></dispatch-dialog>
     </el-dialog>
+    <el-dialog title="派单记录" width="60%" :visible.sync="dispatchRecordModal" :before-close="closeDispatchRecordDialog">
+      <dispatch-record v-on:close="closeDispatchRecordDialog" :rows="currentEditRow" v-if="dispatchRecordModal"></dispatch-record>
+    </el-dialog>
   </div>
 </template>
 
@@ -142,13 +148,15 @@
 import { Error } from '@/common/js/uilt'
 import mixin from '@/components/common/mixin'
 import DispatchDialog from './DispatchDialog'
+import DispatchRecord from './DispatchRecord'
 export default {
   name: 'Recycling',
   mixins: [mixin],
-  components: { DispatchDialog },
+  components: { DispatchDialog, DispatchRecord },
   data () {
     return {
       showDispatchModal: false,
+      dispatchRecordModal: false,
       dialogTitle: '',
       formData: {
         pageNo: 1,
@@ -210,6 +218,15 @@ export default {
     changeHasAccessory (label) {
       this.formData.hasAccessory = label
       this.getListData(1)
+    },
+    closeDispatchRecordDialog () {
+      this.dispatchRecordModal = false
+      this.getListData(this.formData.pageNo)
+    },
+    viewDispatchRecord () {
+      if (!this.checkSelect()) return
+      this.currentEditRow = this.currentRows[0]
+      this.dispatchRecordModal = true
     }
   }
 }
