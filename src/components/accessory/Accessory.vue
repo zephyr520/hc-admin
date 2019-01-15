@@ -74,6 +74,7 @@
           <el-tooltip class="item" content="撤销入库" placement="top-start">
             <el-button type="info" icon="el-icon-circle-close-outline" size="mini" v-access="'back:accessory:cancel:storage'" @click="cancelStorage"></el-button>
           </el-tooltip>
+          <el-button type="primary" size="mini" @click="uploadImage"><i class="el-icon-upload el-icon--right"></i>上传</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -111,10 +112,11 @@
             </el-popover>
           </template>
         </el-table-column>
-        <el-table-column label="重要配件" align="center">
+        <el-table-column label="配件图片" align="center">
           <template slot-scope="scope">
-            <el-tag type="danger" v-if="scope.row.ifImportant === true">是</el-tag>
-            <el-tag type="primary" v-if="scope.row.ifImportant === false">否</el-tag>
+            <viewer :images="scope.row.accessoryImageList">
+              <img v-for="src in scope.row.accessoryImageList" :src="src" :key="src" width="30" height="30"/>
+            </viewer>
           </template>
         </el-table-column>
         <el-table-column label="回收失败" align="center">
@@ -127,6 +129,12 @@
             <el-switch v-model="scope.row.ifTakePhoto" active-text="是" :active-value="true" inactive-text="否" :inactive-value="false" @change="accessoryTakePhoto($event, scope.row)"></el-switch>
           </template>
         </el-table-column>
+        <el-table-column label="重要配件" align="center">
+          <template slot-scope="scope">
+            <el-tag type="danger" v-if="scope.row.ifImportant === true">是</el-tag>
+            <el-tag type="primary" v-if="scope.row.ifImportant === false">否</el-tag>
+          </template>
+        </el-table-column>
       </el-table>
 
       <!--工具条-->
@@ -134,15 +142,21 @@
         <el-pagination :total="total" @current-change="onPageChange" :page-size='formData.pageSize' :current-page="formData.pageNo" :layout="'total, prev, pager, next, jumper'" ></el-pagination>
       </div>
     </div>
+
+    <el-dialog title="配件图片上传" width="30%" :visible.sync="showUploadModal" :before-close="closeUploadDialog">
+      <upload-dialog v-on:close="closeUploadDialog" :rows="currentEditRow" v-if="showUploadModal"></upload-dialog>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { Success, Error } from '@/common/js/uilt'
 import mixin from '@/components/common/mixin'
+import UploadDialog from './UploadDialog'
 export default {
   name: 'Accessory',
   mixins: [mixin],
+  components: { UploadDialog },
   data () {
     return {
       formData: {
@@ -161,6 +175,7 @@ export default {
         startAccessoryStorageTime: '',
         endAccessoryStorageTime: ''
       },
+      showUploadModal: false,
       ifLoading: false,
       tableData: [],
       total: 0
@@ -285,6 +300,15 @@ export default {
           Error(rs.data.retMsg)
         }
       })
+    },
+    closeUploadDialog () {
+      this.showUploadModal = false
+      this.getListData(this.formData.pageNo)
+    },
+    uploadImage () {
+      if (!this.checkSelect()) return
+      this.currentEditRow = this.currentRows[0]
+      this.showUploadModal = true
     }
   }
 }

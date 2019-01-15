@@ -21,3 +21,9 @@ export const accessoryHasStorage = (id) => http.post(`/${perfix}/back/accessory/
 
 // 配件撤销入库
 export const accessoryCancelStorage = (id) => http.post(`/${perfix}/back/accessory/${id}/cancel/storage`)
+
+// 配件图片保存
+export const accessoryImageSave = (params) => http.post(`/${perfix}/accessory/file/create`, params)
+
+// 配件图片上传
+export const accessoryImageUpload = (params) => http.post(`/${perfix}/accessory/image/upload`, params)

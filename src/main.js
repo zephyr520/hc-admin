@@ -5,6 +5,8 @@ import App from './App'
 import router from './router'
 import ElementUI from 'element-ui'
 import NProgress from 'nprogress'
+import Viewer from 'v-viewer'
+import 'viewerjs/dist/viewer.css'
 import 'nprogress/nprogress.css'
 import './common/stylus/index.styl' // 全局引入公共样式
 import './assets/theme/theme-green/index.css'
@@ -21,6 +23,11 @@ Vue.prototype.$axios = axios
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 NProgress.configure({showSpinner: false})
+Vue.use(Viewer, {
+  defaultOptions: {
+    zIndex: 9999
+  }
+})
 
 // 利用router的beforeEach方法检测sessionStorege中是否存在token 检测用户登陆
 router.beforeEach(({ meta, path }, from, next) => {
