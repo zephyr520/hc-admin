@@ -1,10 +1,9 @@
 <template>
   <div>
-    <el-form ref="Form" :model="Form" size="mini" label-width="150px">
+    <el-form ref="Form" :model="Form" :rules="rules" size="mini" label-width="150px">
       <el-upload
               class="upload-demo"
               :action="uploadUrl+'?auth_token='+getToken()"
-              accept="image/jpeg,image/jpg,image/png"
               :before-upload="beforeUpload"
               :file-list="fileList"
               :on-success="uploadSuccess"
@@ -29,7 +28,8 @@ export default {
       },
       accessoryId: '',
       fileList: [],
-      uploadUrl: '/hc-admin/accessory/image/upload'
+      uploadUrl: '/hc-admin/accessory/image/upload',
+      rules: {}
     }
   },
   created () {
@@ -46,6 +46,12 @@ export default {
       const imageSize = file.size / 1024 / 1024 < 5
       if (!imageSize) {
         Error('上传图片大小不能超过5MB')
+        return false
+      }
+      const fileType = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png'
+      if (!fileType) {
+        Error('上传图片格式不对')
+        return false
       }
       return imageSize
     },
@@ -53,16 +59,20 @@ export default {
       this.fileList.push(response.data)
     },
     doSave () {
-      let params = {
-        accessoryId: this.accessoryId,
-        fileUrlList: this.fileList
-      }
-      this.$api.accessoryImageSave(params).then(rs => {
-        if (rs.data.retCode === this.$api.STATUS_OK) {
-          this.onClose()
-          Success('配件图片上传成功')
-        } else {
-          Error(rs.data.retMsg)
+      this.$refs['Form'].validate((valid) => {
+        if (valid) {
+          let params = {
+            accessoryId: this.accessoryId,
+            fileUrlList: this.fileList
+          }
+          this.$api.accessoryImageSave(params).then(rs => {
+            if (rs.data.retCode === this.$api.STATUS_OK) {
+              this.onClose()
+              Success('配件图片上传成功')
+            } else {
+              Error(rs.data.retMsg)
+            }
+          })
         }
       })
     }

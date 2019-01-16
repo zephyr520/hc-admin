@@ -9,3 +9,6 @@ export const dispatchRecyclingList = (params) => http.post(`/${perfix}/back/recy
 
 // 查看派单记录
 export const queryRecyclingDispatchRecordList = (recyclingNo) => http.get(`/${perfix}/back/recycling/${recyclingNo}/dispatch/list`)
+
+// 回收单导入
+export const recyclingListImport = (params) => http.post(`/${perfix}/back/recycling/list/import`, params)

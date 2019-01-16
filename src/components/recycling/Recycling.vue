@@ -71,7 +71,10 @@
           <el-button type="primary" icon="el-icon-search" size="mini" v-access="'back:recycling:list:query'" @click="getListData(1)">查询</el-button>
           <el-button type="danger" size="mini" v-access="'back:recycling:list:dispatch'" @click="dispatchRecyclingList">派单</el-button>
           <el-tooltip class="item" content="查看派单记录" placement="top-start">
-            <el-button type="info" icon="el-icon-view" size="mini" @click="viewDispatchRecord"></el-button>
+            <el-button type="info" icon="el-icon-view" size="mini" v-access="'back:recycling:dispatch:record'" @click="viewDispatchRecord"></el-button>
+          </el-tooltip>
+          <el-tooltip class="item" content="回收单导入" placement="top-start">
+            <el-button type="warning" size="mini" v-access="'back:recycling:list:import'" @click="recyclingListImport">导入</el-button>
           </el-tooltip>
         </el-form-item>
       </el-form>
@@ -141,6 +144,9 @@
     <el-dialog title="派单记录" width="60%" :visible.sync="dispatchRecordModal" :before-close="closeDispatchRecordDialog">
       <dispatch-record v-on:close="closeDispatchRecordDialog" :rows="currentEditRow" v-if="dispatchRecordModal"></dispatch-record>
     </el-dialog>
+    <el-dialog title="回收单导入" width="30%" :visible.sync="showImportModal" :before-close="closeImportDialog">
+      <import-dialog v-on:close="closeImportDialog" v-if="showImportModal"></import-dialog>
+    </el-dialog>
   </div>
 </template>
 
@@ -149,14 +155,16 @@ import { Error } from '@/common/js/uilt'
 import mixin from '@/components/common/mixin'
 import DispatchDialog from './DispatchDialog'
 import DispatchRecord from './DispatchRecord'
+import ImportDialog from './ImportDialog'
 export default {
   name: 'Recycling',
   mixins: [mixin],
-  components: { DispatchDialog, DispatchRecord },
+  components: { DispatchDialog, DispatchRecord, ImportDialog },
   data () {
     return {
       showDispatchModal: false,
       dispatchRecordModal: false,
+      showImportModal: false,
       dialogTitle: '',
       formData: {
         pageNo: 1,
@@ -227,6 +235,14 @@ export default {
       if (!this.checkSelect()) return
       this.currentEditRow = this.currentRows[0]
       this.dispatchRecordModal = true
+    },
+    // 回收单导入
+    closeImportDialog () {
+      this.showImportModal = false
+      this.getListData(this.formData.pageNo)
+    },
+    recyclingListImport () {
+      this.showImportModal = true
     }
   }
 }
