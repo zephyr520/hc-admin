@@ -11,7 +11,7 @@ import { getToken, Error, BackToLogin } from '../common/js/uilt'
 const pageIdObj = {}
 // 创建axios实例
 const service = axios.create({
-  timeout: 50000 // 请求超时时间
+  // timeout: 50000 // 请求超时时间
 })
 
 service.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
