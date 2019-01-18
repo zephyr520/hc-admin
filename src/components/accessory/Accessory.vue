@@ -74,6 +74,9 @@
           <el-tooltip class="item" content="撤销入库" placement="top-start">
             <el-button type="info" icon="el-icon-circle-close-outline" size="mini" v-access="'back:accessory:cancel:storage'" @click="cancelStorage"></el-button>
           </el-tooltip>
+          <el-tooltip class="item" content="删除配件" placement="top-start">
+            <el-button type="danger" icon="el-icon-delete" size="mini" v-access="'back:recycling:accessory:delete'" @click="accessoryDelete"></el-button>
+          </el-tooltip>
           <el-button type="primary" size="mini" v-access="'back:accessory:image:upload'" @click="uploadImage"><i class="el-icon-upload el-icon--right"></i>上传</el-button>
         </el-form-item>
       </el-form>
@@ -309,6 +312,26 @@ export default {
       if (!this.checkSelect()) return
       this.currentEditRow = this.currentRows[0]
       this.showUploadModal = true
+    },
+    accessoryDelete () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.currentEditRow = this.currentRows[0]
+      this.$confirm('您确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$api.accessoryDelete(this.currentEditRow.id).then(rs => {
+          if (rs.data.retCode === this.$api.STATUS_OK) {
+            this.getListData(this.formData.pageNo)
+            Success('删除成功')
+          } else {
+            Error(rs.data.retMsg)
+          }
+        })
+      }).catch(() => {
+      })
     }
   }
 }

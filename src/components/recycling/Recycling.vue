@@ -76,6 +76,7 @@
           <el-tooltip class="item" content="回收单导入" placement="top-start">
             <el-button type="warning" size="mini" v-access="'back:recycling:list:import'" @click="recyclingListImport">导入</el-button>
           </el-tooltip>
+          <el-button type="danger" size="mini" v-access="'back:recycling:list:delete'" @click="deleteRecyclingList">删除</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -243,6 +244,26 @@ export default {
     },
     recyclingListImport () {
       this.showImportModal = true
+    },
+    deleteRecyclingList () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.currentEditRow = this.currentRows[0]
+      this.$confirm('您确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$api.deleteRecyclingList(this.currentEditRow.recyclingNo).then(rs => {
+          if (rs.data.retCode === this.$api.STATUS_OK) {
+            this.getListData(this.formData.pageNo)
+            Success('删除成功')
+          } else {
+            Error(rs.data.retMsg)
+          }
+        })
+      }).catch(() => {
+      })
     }
   }
 }

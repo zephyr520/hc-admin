@@ -65,15 +65,16 @@ export default {
         Error('请选择上传的文件')
         return false
       }
+      this.ifLoading = true
       let params = new FormData()
       params.append('file', this.Form.file)
       this.$api.recyclingListImport(params).then(rs => {
         if (rs.data.retCode === this.$api.STATUS_OK) {
-          Success('回收单导入成功')
-          this.ifLoading = true
           this.onClose()
+          Success('回收单导入成功')
         } else {
           Error(rs.data.retMsg)
+          this.ifLoading = false
         }
       }).catch(e => {
         console.log(e)

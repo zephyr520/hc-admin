@@ -54,7 +54,7 @@ export default {
       // top: 0px;
       // bottom: 0px;
       // left: 220px;
-      // overflow-y: scroll;
+      overflow-y: scroll;
       padding: 20px;
       .content-wrapper {
         background-color: #fff;
