@@ -12,3 +12,6 @@ export const queryRecyclingDispatchRecordList = (recyclingNo) => http.get(`/${pe
 
 // 回收单导入
 export const recyclingListImport = (params) => http.post(`/${perfix}/back/recycling/list/import`, params)
+
+// 删除回收单
+export const deleteRecyclingList = (recyclingNo) => http.post(`/${perfix}/back/recycling/list/${recyclingNo}/delete`)

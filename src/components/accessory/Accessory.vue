@@ -63,16 +63,22 @@
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" size="mini" v-access="'back:accessory:list:query'" @click="getListData(1)">查询</el-button>
           <el-tooltip class="item" content="标记回收" placement="top-start">
-            <el-button type="success" icon="el-icon-edit" size="mini" v-access="'back:accessory:has:recycled'" @click="recycled"></el-button>
+            <el-button type="success" icon="el-icon-edit" size="mini" v-access="'back:accessory:has:recycled'" @click="recycled">回收</el-button>
           </el-tooltip>
           <el-tooltip class="item" content="撤销回收" placement="top-start">
-            <el-button type="warning" icon="el-icon-circle-close-outline" size="mini" v-access="'back:accessory:cancel:recycled'" @click="cancelRecycled"></el-button>
+            <el-button type="warning" icon="el-icon-circle-close-outline" size="mini" v-access="'back:accessory:cancel:recycled'" @click="cancelRecycled">取消</el-button>
           </el-tooltip>
           <el-tooltip class="item" content="标记入库" placement="top-start">
-            <el-button type="primary" icon="el-icon-edit" size="mini" v-access="'back:accessory:has:storage'" @click="storage"></el-button>
+            <el-button type="primary" icon="el-icon-edit" size="mini" v-access="'back:accessory:has:storage'" @click="storage">入库</el-button>
           </el-tooltip>
           <el-tooltip class="item" content="撤销入库" placement="top-start">
-            <el-button type="info" icon="el-icon-circle-close-outline" size="mini" v-access="'back:accessory:cancel:storage'" @click="cancelStorage"></el-button>
+            <el-button type="info" icon="el-icon-circle-close-outline" size="mini" v-access="'back:accessory:cancel:storage'" @click="cancelStorage">撤销</el-button>
+          </el-tooltip>
+          <el-tooltip class="item" content="修改配件" placement="top-start">
+            <el-button type="success" icon="el-icon-edit-outline" size="mini" v-access="'back:recycling:accessory:modify'" @click="accessoryModify">修改</el-button>
+          </el-tooltip>
+          <el-tooltip class="item" content="删除配件" placement="top-start">
+            <el-button type="danger" icon="el-icon-delete" size="mini" v-access="'back:recycling:accessory:delete'" @click="accessoryDelete">删除</el-button>
           </el-tooltip>
           <el-button type="primary" size="mini" v-access="'back:accessory:image:upload'" @click="uploadImage"><i class="el-icon-upload el-icon--right"></i>上传</el-button>
         </el-form-item>
@@ -146,6 +152,9 @@
     <el-dialog title="配件图片上传" width="30%" :visible.sync="showUploadModal" :before-close="closeUploadDialog">
       <upload-dialog v-on:close="closeUploadDialog" :rows="currentEditRow" v-if="showUploadModal"></upload-dialog>
     </el-dialog>
+    <el-dialog title="配件修改" width="40%" :visible.sync="showModifyModal" :before-close="closeModifyDialog">
+      <Modify v-on:close="closeModifyDialog" :rows="currentEditRow" v-if="showModifyModal"></Modify>
+    </el-dialog>
   </div>
 </template>
 
@@ -153,10 +162,11 @@
 import { Success, Error } from '@/common/js/uilt'
 import mixin from '@/components/common/mixin'
 import UploadDialog from './UploadDialog'
+import Modify from './Modify'
 export default {
   name: 'Accessory',
   mixins: [mixin],
-  components: { UploadDialog },
+  components: { UploadDialog, Modify },
   data () {
     return {
       formData: {
@@ -176,6 +186,7 @@ export default {
         endAccessoryStorageTime: ''
       },
       showUploadModal: false,
+      showModifyModal: false,
       ifLoading: false,
       tableData: [],
       total: 0
@@ -307,8 +318,39 @@ export default {
     },
     uploadImage () {
       if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
       this.currentEditRow = this.currentRows[0]
       this.showUploadModal = true
+    },
+    accessoryDelete () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.currentEditRow = this.currentRows[0]
+      this.$confirm('您确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$api.accessoryDelete(this.currentEditRow.id).then(rs => {
+          if (rs.data.retCode === this.$api.STATUS_OK) {
+            this.getListData(this.formData.pageNo)
+            Success('删除成功')
+          } else {
+            Error(rs.data.retMsg)
+          }
+        })
+      }).catch(() => {
+      })
+    },
+    closeModifyDialog () {
+      this.showModifyModal = false
+      this.getListData(this.formData.pageNo)
+    },
+    accessoryModify () {
+      if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
+      this.currentEditRow = this.currentRows[0]
+      this.showModifyModal = true
     }
   }
 }

@@ -27,3 +27,9 @@ export const accessoryImageSave = (params) => http.post(`/${perfix}/accessory/fi
 
 // 配件图片上传
 export const accessoryImageUpload = (params) => http.post(`/${perfix}/accessory/image/upload`, params)
+
+// 删除配件
+export const accessoryDelete = (id) => http.post(`/${perfix}/back/accessory/${id}/delete`)
+
+// 配件修改
+export const accessoryModify = (params) => http.post(`/${perfix}/back/accessory/modify`, params)

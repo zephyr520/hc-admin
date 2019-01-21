@@ -70,10 +70,11 @@ export default {
       params.append('file', this.Form.file)
       this.$api.recyclingListImport(params).then(rs => {
         if (rs.data.retCode === this.$api.STATUS_OK) {
-          Success('回收单导入成功')
           this.onClose()
+          Success('回收单导入成功')
         } else {
           Error(rs.data.retMsg)
+          this.ifLoading = false
         }
       }).catch(e => {
         console.log(e)
