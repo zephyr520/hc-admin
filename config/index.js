@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/hc-admin': {
-        target: 'http://192.168.1.45:8081',
+        target: 'http://192.168.126.1:8081',
         changeOrigin: true,
         logLevel: 'debug',
         pathRewrite: {

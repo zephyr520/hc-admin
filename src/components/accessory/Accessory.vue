@@ -89,8 +89,8 @@
         <el-table-column type="selection"></el-table-column>
         <el-table-column prop="recyclingNo" label="回收单号" align="center" min-width="120"></el-table-column>
         <el-table-column prop="accessoryName" label="配件名称" align="center" min-width="140"></el-table-column>
-        <el-table-column prop="accessoryPrice" label="配件价格" align="center"></el-table-column>
-        <el-table-column prop="accessoryNum" label="配件数量" align="center"></el-table-column>
+        <el-table-column prop="accessoryPrice" label="价格" align="center"></el-table-column>
+        <el-table-column prop="accessoryNum" label="数量" align="center"></el-table-column>
         <el-table-column label="配件状态" align="center" min-width="90">
           <template slot-scope="scope">
             <el-tag type="primary" v-if="scope.row.accessoryStatus === 0">{{scope.row.accessoryStatusStr}}</el-tag>

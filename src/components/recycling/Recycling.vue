@@ -234,6 +234,7 @@ export default {
     },
     viewDispatchRecord () {
       if (!this.checkSelect()) return
+      if (!this.checkMutiSelectOne()) return
       this.currentEditRow = this.currentRows[0]
       this.dispatchRecordModal = true
     },
